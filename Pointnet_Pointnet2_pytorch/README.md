@@ -2,31 +2,6 @@
 
 This repo is implementation for [PointNet](http://openaccess.thecvf.com/content_cvpr_2017/papers/Qi_PointNet_Deep_Learning_CVPR_2017_paper.pdf) and [PointNet++](http://papers.nips.cc/paper/7095-pointnet-deep-hierarchical-feature-learning-on-point-sets-in-a-metric-space.pdf) in pytorch.
 
-## Update
-**2021/03/27:** 
-
-(1) Release pre-trained models for semantic segmentation, where PointNet++ can achieve **53.5\%** mIoU.
-
-(2) Release pre-trained models for classification and part segmentation in `log/`.
-
-**2021/03/20:** Update codes for classification, including:
-
-(1) Add codes for training **ModelNet10** dataset. Using setting of ``--num_category 10``. 
-
-(2) Add codes for running on CPU only. Using setting of ``--use_cpu``. 
-
-(3) Add codes for offline data preprocessing to accelerate training. Using setting of ``--process_data``. 
-
-(4) Add codes for training with uniform sampling. Using setting of ``--use_uniform_sample``. 
-
-**2019/11/26:**
-
-(1) Fixed some errors in previous codes and added data augmentation tricks. Now classification by only 1024 points can achieve **92.8\%**! 
-
-(2) Added testing codes, including classification and segmentation, and semantic segmentation with visualization. 
-
-(3) Organized all models into `./models` files for easy using.
-
 ## Install
 The latest codes are tested on Ubuntu 16.04, CUDA10.1, PyTorch 1.6 and Python 3.7:
 ```shell
@@ -141,7 +116,6 @@ python show3d_balls.py
 
 
 ## Citation
-If you find this repo useful in your research, please consider citing it and our other works:
 ```
 @article{Pytorch_Pointnet_Pointnet2,
       Author = {Xu Yan},
