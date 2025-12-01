@@ -1,0 +1,70 @@
+# Example Configuration for Semantic Segmentation
+# S3DIS Indoor Scene Segmentation Task
+
+task: semantic_segmentation
+model: pointnet2_sem_seg
+
+# Data Configuration
+data:
+  dataset: S3DIS
+  data_path: data/s3dis/stanford_indoor3d/
+  num_point: 4096
+  test_area: 5
+  num_classes: 13
+  block_size: 1.0
+  sample_rate: 1.0
+  classes:
+    - ceiling
+    - floor
+    - wall
+    - beam
+    - column
+    - window
+    - door
+    - table
+    - chair
+    - sofa
+    - bookcase
+    - board
+    - clutter
+
+# Model Configuration
+model_config:
+  num_classes: 13
+  feature_channels: 6  # xyz + rgb
+
+# Training Configuration
+training:
+  batch_size: 8
+  num_epochs: 100
+  learning_rate: 0.001
+  optimizer: Adam
+  weight_decay: 0.0001
+  
+  lr_scheduler:
+    type: StepLR
+    step_size: 10
+    gamma: 0.7
+
+# Hardware Configuration
+hardware:
+  use_cpu: false
+  gpu: "0"
+
+# Logging Configuration
+logging:
+  log_dir: experiments/semseg_area5_001
+  use_tensorboard: true
+  generate_report: true
+  visualization: true
+  visual_dir: visualizations/
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - overall_accuracy
+    - mean_iou
+    - per_class_iou
+    - class_avg_accuracy
+  test_area: 5
+  visualize_results: true

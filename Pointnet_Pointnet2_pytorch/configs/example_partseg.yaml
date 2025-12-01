@@ -1,0 +1,52 @@
+# Example Configuration for Part Segmentation
+# ShapeNet Part Segmentation Task
+
+task: part_segmentation
+model: pointnet2_part_seg_msg
+
+# Data Configuration
+data:
+  dataset: ShapeNet
+  data_path: data/shapenetcore_partanno_segmentation_benchmark_v0_normal/
+  num_point: 2048
+  normal: true
+  num_classes: 16
+  num_parts: 50
+
+# Model Configuration
+model_config:
+  normal_channel: true
+  num_classes: 16
+  num_parts: 50
+
+# Training Configuration
+training:
+  batch_size: 16
+  num_epochs: 250
+  learning_rate: 0.001
+  optimizer: Adam
+  weight_decay: 0.0001
+  
+  lr_scheduler:
+    type: StepLR
+    step_size: 20
+    gamma: 0.5
+
+# Hardware Configuration
+hardware:
+  use_cpu: false
+  gpu: "0"
+
+# Logging Configuration
+logging:
+  log_dir: experiments/partseg_msg_001
+  use_tensorboard: true
+  generate_report: true
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - instance_iou
+    - class_avg_iou
+    - per_class_iou
+    - accuracy

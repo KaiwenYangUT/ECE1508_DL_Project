@@ -2,10 +2,34 @@
 
 This repo is implementation for [PointNet](http://openaccess.thecvf.com/content_cvpr_2017/papers/Qi_PointNet_Deep_Learning_CVPR_2017_paper.pdf) and [PointNet++](http://papers.nips.cc/paper/7095-pointnet-deep-hierarchical-feature-learning-on-point-sets-in-a-metric-space.pdf) in pytorch.
 
+## 🌟 New Features
+
+This enhanced version includes comprehensive utilities for experiment management:
+
+- **📊 Advanced Metrics Tracking**: Comprehensive metrics computation and tracking
+- **📈 Visualization Tools**: Training curves, confusion matrices, per-class performance plots
+- **🔧 Configuration Management**: YAML/JSON-based experiment configuration
+- **📝 Automatic Logging**: Enhanced logging with TensorBoard and Weights & Biases support
+- **📑 Report Generation**: Automated experiment reports in Markdown and LaTeX formats
+- **🔍 Results Analysis**: Tools for comparing experiments and analyzing results
+- **💾 Enhanced Checkpointing**: Better model saving and loading with metadata
+
+See [DOCUMENTATION.md](DOCUMENTATION.md) for comprehensive guides and examples.
+
 ## Install
 The latest codes are tested on Ubuntu 16.04, CUDA10.1, PyTorch 1.6 and Python 3.7:
 ```shell
+# Create environment
+conda create -n pointnet python=3.7
+conda activate pointnet
+
+# Install PyTorch
 conda install pytorch==1.6.0 cudatoolkit=10.1 -c pytorch
+
+# Install dependencies
+pip install numpy tqdm scikit-learn matplotlib seaborn pandas pyyaml
+# Optional: for enhanced logging
+pip install tensorboard wandb
 ```
 
 ## Classification (ModelNet10/40)
@@ -106,6 +130,70 @@ python show3d_balls.py
 ![](/visualizer/pic.png)
 ### Using MeshLab
 ![](/visualizer/pic2.png)
+
+### Using Enhanced Visualization Tools
+```python
+from utils import TrainingVisualizer
+
+# Create visualizer
+visualizer = TrainingVisualizer(save_dir='visualizations/')
+
+# Plot training curves
+visualizer.plot_training_curves(train_metrics, val_metrics)
+
+# Plot confusion matrix
+visualizer.plot_confusion_matrix(confusion_matrix, class_names)
+
+# Plot per-class accuracy
+visualizer.plot_per_class_accuracy(class_accuracies, class_names)
+```
+
+## 🚀 Quick Start with Enhanced Features
+
+### Enhanced Training
+```bash
+# Train with TensorBoard logging and automatic report generation
+python train_classification_enhanced.py \
+    --model pointnet2_cls_ssg \
+    --log_dir my_experiment \
+    --use_tensorboard \
+    --generate_report
+
+# Monitor training in real-time
+tensorboard --logdir=log/classification/my_experiment/tensorboard
+```
+
+### Analyze Results
+```python
+from utils import ResultsAnalyzer, ReportGenerator
+
+# Load and analyze all experiments
+analyzer = ResultsAnalyzer('log/classification/')
+analyzer.load_all_experiments()
+
+# Get summary table
+summary = analyzer.get_summary_table()
+print(summary)
+
+# Export results
+analyzer.export_summary('results.csv', format='csv')
+
+# Generate comprehensive report
+report_gen = ReportGenerator('reports/')
+report_gen.generate_comparison_report(analyzer.experiments)
+```
+
+## 📊 Utilities Overview
+
+The `utils/` package provides comprehensive tools:
+
+- **config.py**: Configuration management for experiments
+- **metrics.py**: Advanced metrics computation (accuracy, IoU, confusion matrices)
+- **visualization.py**: Training curves, confusion matrices, model comparisons
+- **logger.py**: Enhanced logging with TensorBoard and W&B integration
+- **report.py**: Automated report generation in multiple formats
+
+See [DOCUMENTATION.md](DOCUMENTATION.md) for detailed usage examples.
 
 
 ## Reference By

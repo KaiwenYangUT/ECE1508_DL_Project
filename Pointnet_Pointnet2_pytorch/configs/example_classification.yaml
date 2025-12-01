@@ -1,0 +1,95 @@
+# Example Configuration for PointNet++ SSG Classification
+# This file demonstrates the configuration format for experiments
+
+# Task Configuration
+task: classification
+model: pointnet2_cls_ssg
+
+# Data Configuration
+data:
+  dataset: ModelNet40
+  data_path: data/modelnet40_normal_resampled/
+  num_category: 40
+  num_point: 1024
+  use_normals: true
+  use_uniform_sample: false
+  process_data: false
+
+# Model Configuration
+model_config:
+  normal_channel: true
+  dropout: 0.4
+  set_abstraction:
+    - npoint: 512
+      radius: 0.2
+      nsample: 32
+      mlp: [64, 64, 128]
+    - npoint: 128
+      radius: 0.4
+      nsample: 64
+      mlp: [128, 128, 256]
+    - npoint: null
+      radius: null
+      nsample: null
+      mlp: [256, 512, 1024]
+  fc_layers: [512, 256]
+
+# Training Configuration
+training:
+  batch_size: 24
+  num_epochs: 200
+  learning_rate: 0.001
+  optimizer: Adam
+  weight_decay: 0.0001
+  
+  # Learning rate scheduler
+  lr_scheduler:
+    type: StepLR
+    step_size: 20
+    gamma: 0.7
+  
+  # Data augmentation
+  augmentation:
+    random_point_dropout: true
+    dropout_ratio: 0.875
+    random_scale: true
+    scale_low: 0.8
+    scale_high: 1.25
+    random_shift: true
+    shift_range: 0.1
+    random_jitter: false
+
+# Hardware Configuration
+hardware:
+  use_cpu: false
+  gpu: "0"
+
+# Logging Configuration
+logging:
+  log_dir: experiments/pointnet2_ssg_001
+  console_level: INFO
+  file_level: DEBUG
+  use_tensorboard: true
+  use_wandb: false
+  wandb_project: pointnet-experiments
+  
+# Experiment Management
+experiment:
+  name: pointnet2_ssg_baseline
+  description: "Baseline PointNet++ SSG with normal features"
+  tags:
+    - baseline
+    - pointnet2
+    - ModelNet40
+  generate_report: true
+  save_checkpoints: true
+  checkpoint_frequency: 10  # Save every N epochs
+
+# Evaluation Configuration
+evaluation:
+  test_batch_size: 32
+  metrics:
+    - overall_accuracy
+    - average_class_accuracy
+    - per_class_accuracy
+    - confusion_matrix
