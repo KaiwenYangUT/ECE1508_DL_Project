@@ -4,13 +4,33 @@ from pointnet2_utils import PointNetSetAbstractionMsg, PointNetSetAbstraction
 
 
 class get_model(nn.Module):
-    def __init__(self,num_class,normal_channel=True):
+    def __init__(self,num_class,normal_channel=True, widen=1.5, deepen=1, residual=True):
         super(get_model, self).__init__()
         in_channel = 3 if normal_channel else 0
         self.normal_channel = normal_channel
-        self.sa1 = PointNetSetAbstractionMsg(512, [0.1, 0.2, 0.4], [16, 32, 128], in_channel,[[32, 32, 64], [64, 64, 128], [64, 96, 128]])
-        self.sa2 = PointNetSetAbstractionMsg(128, [0.2, 0.4, 0.8], [32, 64, 128], 320,[[64, 64, 128], [128, 128, 256], [128, 128, 256]])
-        self.sa3 = PointNetSetAbstraction(None, None, None, 640 + 3, [256, 512, 1024], True)
+
+        # Helper function to compute MSG output channels given mlp_list, widen, deepen
+        def compute_msg_out_channels(mlp_list, widen_val, deepen_val):
+            out = 0
+            for branch in mlp_list:
+                proc = [int(round(c * widen_val)) for c in branch]
+                if deepen_val > 0:
+                    proc = proc + [proc[-1]] * deepen_val
+                out += proc[-1]
+            return out
+
+        # SA1 configuration
+        sa1_mlps = [[32, 32, 64], [64, 64, 128], [64, 96, 128]]
+        self.sa1 = PointNetSetAbstractionMsg(512, [0.1, 0.2, 0.4], [16, 32, 128], in_channel, sa1_mlps, deepen=deepen, widen=widen, residual=residual)
+        sa1_out = compute_msg_out_channels(sa1_mlps, widen, deepen)
+
+        # SA2: infer in_channel from SA1 output
+        sa2_mlps = [[64, 64, 128], [128, 128, 256], [128, 128, 256]]
+        self.sa2 = PointNetSetAbstractionMsg(128, [0.2, 0.4, 0.8], [32, 64, 128], sa1_out, sa2_mlps, deepen=deepen, widen=widen, residual=residual)
+        sa2_out = compute_msg_out_channels(sa2_mlps, widen, deepen)
+
+        # SA3: global abstraction, in_channel should be sa2_out + 3 (coords)
+        self.sa3 = PointNetSetAbstraction(None, None, None, sa2_out + 3, [256, 512, 1024], True)
         self.fc1 = nn.Linear(1024, 512)
         self.bn1 = nn.BatchNorm1d(512)
         self.drop1 = nn.Dropout(0.4)

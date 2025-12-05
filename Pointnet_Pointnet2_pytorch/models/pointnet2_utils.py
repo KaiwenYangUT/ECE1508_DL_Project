@@ -203,7 +203,7 @@ class PointNetSetAbstraction(nn.Module):
 
 
 class PointNetSetAbstractionMsg(nn.Module):
-    def __init__(self, npoint, radius_list, nsample_list, in_channel, mlp_list, deepen=0, widen=1.0, residual=False):
+    def __init__(self, npoint, radius_list, nsample_list, in_channel, mlp_list, deepen=1, widen=1.5, residual=True):
         super(PointNetSetAbstractionMsg, self).__init__()
         self.npoint = npoint
         self.radius_list = radius_list
