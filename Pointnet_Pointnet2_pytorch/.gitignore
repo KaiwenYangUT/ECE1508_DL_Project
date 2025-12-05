@@ -53,9 +53,13 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
+# *.log
 local_settings.py
 db.sqlite3
+
+!log/classification/**/*.txt
+!log/segmentation/**/*.txt
+!log/part_seg/**/*.txt
 
 # Flask stuff:
 instance/
