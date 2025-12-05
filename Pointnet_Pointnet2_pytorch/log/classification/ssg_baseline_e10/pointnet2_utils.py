@@ -205,7 +205,6 @@ class PointNetSetAbstraction(nn.Module):
             self.mlp_convs.append(nn.Conv2d(last_channel, out_channel, 1))
             self.mlp_bns.append(nn.BatchNorm2d(out_channel))
             last_channel = out_channel
-        self.out_channels = last_channel
 
         # --- NEW: residual projection (if needed) from conv1x1 output → final channels ---
         if residual:

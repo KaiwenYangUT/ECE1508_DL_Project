@@ -41,10 +41,6 @@ def parse_args():
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals')
     parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
-    parser.add_argument('--deepen', type=int, default=0, help='Number of extra layers in SA MLP')
-    parser.add_argument('--widen', type=float, default=1.0, help='Widen factor for SA MLP channels')
-    parser.add_argument('--residual', action='store_true', help='Use residual connections inside SA')
-
     return parser.parse_args()
 
 
@@ -144,13 +140,7 @@ def main(args):
     shutil.copy('models/pointnet2_utils.py', str(exp_dir))
     shutil.copy('./train_classification.py', str(exp_dir))
 
-    classifier = model.get_model(
-    num_class=num_class,
-    normal_channel=args.use_normals,
-    deepen=args.deepen,
-    widen=args.widen,
-    residual=args.residual)
-    
+    classifier = model.get_model(num_class, normal_channel=args.use_normals)
     criterion = model.get_loss()
     classifier.apply(inplace_relu)
 
