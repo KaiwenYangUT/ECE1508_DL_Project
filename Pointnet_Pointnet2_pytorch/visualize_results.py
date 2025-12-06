@@ -6,7 +6,18 @@ from pathlib import Path
 
 # Set style
 plt.style.use('seaborn-v0_8-darkgrid')
-sns.set_palette("husl")
+
+# Define unique colors for each model (8 distinct colors with high contrast)
+MODEL_COLORS = {
+    'Baseline\n(d=0, w=1.0, r=False)': '#e74c3c',  # Bright Red
+    'Deepen=1': '#ff8c00',  # Dark Orange
+    'Residual=True': '#2ecc71',  # Bright Green
+    'Widen=1.5': '#000000',  # Black
+    'Deepen=1\n+ Residual': '#3498db',  # Sky Blue
+    'Deepen=2\n+ Residual': '#9b59b6',  # Purple
+    'Widen=1.5\n+ Deepen=1\n+ Residual': '#e91e63',  # Hot Pink
+    'Widen=0.9': '#f4d03f',  # Golden Yellow (very distinct from orange)
+}
 
 # Define the training data from logs
 training_data = {
@@ -100,8 +111,9 @@ output_dir.mkdir(exist_ok=True)
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
 for model_name, data in training_data.items():
-    ax1.plot(data['epochs'], data['train_acc'], marker='o', label=model_name, linewidth=2, markersize=4)
-    ax2.plot(data['epochs'], data['test_acc'], marker='s', label=model_name, linewidth=2, markersize=4)
+    color = MODEL_COLORS[model_name]
+    ax1.plot(data['epochs'], data['train_acc'], marker='o', label=model_name, linewidth=2, markersize=4, color=color)
+    ax2.plot(data['epochs'], data['test_acc'], marker='s', label=model_name, linewidth=2, markersize=4, color=color)
 
 ax1.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax1.set_ylabel('Training Accuracy', fontsize=12, fontweight='bold')
@@ -126,7 +138,8 @@ plt.close()
 fig, ax = plt.subplots(figsize=(12, 6))
 
 for model_name, data in training_data.items():
-    ax.plot(data['epochs'], data['test_class_acc'], marker='D', label=model_name, linewidth=2, markersize=4)
+    color = MODEL_COLORS[model_name]
+    ax.plot(data['epochs'], data['test_class_acc'], marker='D', label=model_name, linewidth=2, markersize=4, color=color)
 
 ax.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax.set_ylabel('Test Class Accuracy', fontsize=12, fontweight='bold')
@@ -196,10 +209,10 @@ plt.close()
 # 5. Accuracy vs Training Time Scatter Plot
 fig, ax = plt.subplots(figsize=(10, 7))
 
-colors = sns.color_palette("husl", len(model_names))
-for i, (model_name, data) in enumerate(training_data.items()):
+for model_name, data in training_data.items():
+    color = MODEL_COLORS[model_name]
     ax.scatter(data['total_time'], data['best_test_acc']*100, 
-               s=200, alpha=0.7, color=colors[i], edgecolors='black', linewidth=1.5,
+               s=200, alpha=0.7, color=color, edgecolors='black', linewidth=1.5,
                label=model_name)
 
 ax.set_xlabel('Training Time (minutes)', fontsize=12, fontweight='bold')
@@ -260,8 +273,9 @@ plt.close()
 fig, ax = plt.subplots(figsize=(12, 6))
 
 for model_name, data in training_data.items():
+    color = MODEL_COLORS[model_name]
     train_test_gap = np.array(data['train_acc']) - np.array(data['test_acc'])
-    ax.plot(data['epochs'], train_test_gap, marker='o', label=model_name, linewidth=2, markersize=4)
+    ax.plot(data['epochs'], train_test_gap, marker='o', label=model_name, linewidth=2, markersize=4, color=color)
 
 ax.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax.set_ylabel('Training - Test Accuracy Gap', fontsize=12, fontweight='bold')
