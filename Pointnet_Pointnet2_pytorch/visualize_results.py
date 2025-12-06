@@ -189,8 +189,16 @@ plt.close()
 # 4. Training Time Comparison
 training_times = [data['total_time'] for data in training_data.values()]
 
+# Sort by training time (descending) to have baseline on top and longest at bottom
+sorted_indices = sorted(range(len(training_times)), key=lambda i: training_times[i], reverse=True)
+sorted_model_names = [model_names[i] for i in sorted_indices]
+sorted_training_times = [training_times[i] for i in sorted_indices]
+
+# Create color map where longer times get darker colors
+colors = sns.color_palette("viridis", len(sorted_training_times))
+
 fig, ax = plt.subplots(figsize=(12, 6))
-bars = ax.barh(model_names, training_times, alpha=0.8, color=sns.color_palette("viridis", len(model_names)))
+bars = ax.barh(sorted_model_names, sorted_training_times, alpha=0.8, color=colors)
 
 ax.set_xlabel('Training Time (minutes)', fontsize=12, fontweight='bold')
 ax.set_ylabel('Model Configuration', fontsize=12, fontweight='bold')
@@ -198,7 +206,7 @@ ax.set_title('Total Training Time Comparison (10 Epochs)', fontsize=14, fontweig
 ax.grid(True, alpha=0.3, axis='x')
 
 # Add value labels
-for i, (bar, time) in enumerate(zip(bars, training_times)):
+for i, (bar, time) in enumerate(zip(bars, sorted_training_times)):
     ax.text(time + 1, i, f'{time:.1f} min', va='center', fontsize=9)
 
 plt.tight_layout()
