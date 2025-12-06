@@ -2,64 +2,75 @@
 POINTNET2 MSG MODEL PERFORMANCE SUMMARY REPORT
 ================================================================================
 
-Total Models Evaluated: 4
+Total Models Evaluated: 5
 Dataset: ModelNet40
 
 --------------------------------------------------------------------------------
 TOP PERFORMING MODEL BY TEST INSTANCE ACCURACY:
 --------------------------------------------------------------------------------
-Model: Vanilla MSG
-Configuration: Baseline
-Best Test Accuracy: 91.55%
-Best Class Accuracy: 88.33%
-Final Test Accuracy: 88.51%
-Epochs Trained: 51
+Model: Modified (w=1, d=1, r=False)
+Configuration: width=1, depth=1, residual=False
+Best Test Accuracy: 90.37%
+Best Class Accuracy: 86.22%
+Final Test Accuracy: 90.37%
+Epochs Trained: 21
 
 --------------------------------------------------------------------------------
 TOP PERFORMING MODEL BY TEST CLASS ACCURACY:
 --------------------------------------------------------------------------------
-Model: Vanilla MSG
-Configuration: Baseline
-Best Test Accuracy: 91.55%
-Best Class Accuracy: 88.33%
-Final Test Accuracy: 88.51%
-Epochs Trained: 51
+Model: Modified (w=0.8, d=1, r=False)
+Configuration: width=0.8, depth=1, residual=False
+Best Test Accuracy: 90.33%
+Best Class Accuracy: 86.44%
+Final Test Accuracy: 90.33%
+Epochs Trained: 21
 
 --------------------------------------------------------------------------------
 ALL MODELS RANKED BY BEST TEST ACCURACY:
 --------------------------------------------------------------------------------
-1. Vanilla MSG
-   Test Accuracy: 91.55%
-   Class Accuracy: 88.33%
-   Epochs: 51
-
-2. Modified (w=1, d=1, r=True)
-   Test Accuracy: 90.44%
-   Class Accuracy: 86.26%
-   Epochs: 36
-
-3. Modified (w=1, d=1, r=False)
+1. Modified (w=1, d=1, r=False)
    Test Accuracy: 90.37%
-   Class Accuracy: 86.42%
-   Epochs: 23
+   Class Accuracy: 86.22%
+   Epochs: 21
 
-4. Modified (w=1.5, d=1, r=True)
-   Test Accuracy: 88.94%
-   Class Accuracy: 85.16%
-   Epochs: 43
+2. Modified (w=0.8, d=1, r=False)
+   Test Accuracy: 90.33%
+   Class Accuracy: 86.44%
+   Epochs: 21
+
+3. Vanilla MSG
+   Test Accuracy: 89.91%
+   Class Accuracy: 86.09%
+   Epochs: 21
+
+4. Modified (w=1, d=1, r=True)
+   Test Accuracy: 89.67%
+   Class Accuracy: 85.98%
+   Epochs: 21
+
+5. Modified (w=1.5, d=1, r=True)
+   Test Accuracy: 87.32%
+   Class Accuracy: 82.30%
+   Epochs: 21
 
 ================================================================================
 KEY FINDINGS:
 ================================================================================
-1. Depth Effect: Adding depth (d=1) improved test accuracy by -1.17%
-   (91.55% -> 90.37%)
+1. Depth Effect: Adding depth (d=1) to baseline:
+   Vanilla (d=0): 89.91%
+   Modified (w=1, d=1, r=False): 90.37%
+   Improvement: 0.47%
 
-2. Width Effect: Increasing width (w=1.5) with depth and residual gave 88.94% test accuracy
+2. Width Effect (all with d=1):
+   w=0.8: 90.33%
+   w=1.0: 90.37%
+   w=1.5: 87.32%
+   Best width: 1.0 or 0.8
 
-3. Residual Effect: Comparing models with same width/depth but different residual:
+3. Residual Effect (w=1, d=1):
    Without residual: 90.37%
-   With residual: 90.44%
-   Difference: 0.07%
+   With residual: 89.67%
+   Difference: -0.70%
 
 ================================================================================
 All visualizations saved to 'visualization_results_msg/' directory

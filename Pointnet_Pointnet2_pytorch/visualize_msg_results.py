@@ -14,7 +14,7 @@ output_dir = Path('visualization_results_msg')
 output_dir.mkdir(exist_ok=True)
 
 # Read the CSV file - skip first header row, use second row as column names
-df = pd.read_csv('pointnet2_msg.csv', skiprows=[0])
+df = pd.read_csv('pointnet2_msg_2.csv', skiprows=[0])
 
 # Parse the data - the CSV has a complex structure with multiple model configurations
 # Column structure: vanilla msg model (3 cols), modified msg model w=1.5,d=1,r=True (3 cols), 
@@ -55,6 +55,13 @@ models = {
         'class_acc': 'class_acc.3',
         'color': '#d62728',
         'config': 'width=1, depth=1, residual=True'
+    },
+    'Modified (w=0.8, d=1, r=False)': {
+        'train_acc': 'train_instance_acc.4',
+        'test_acc': 'test_instance_acc.4',
+        'class_acc': 'class_acc.4',
+        'color': '#9467bd',
+        'config': 'width=0.8, depth=1, residual=False'
     }
 }
 
@@ -74,7 +81,7 @@ ax1.set_ylabel('Test Instance Accuracy', fontsize=12, fontweight='bold')
 ax1.set_title('Test Instance Accuracy Over Training', fontsize=14, fontweight='bold')
 ax1.legend(fontsize=9, loc='lower right')
 ax1.grid(True, alpha=0.3)
-ax1.set_xlim(0, 51)
+ax1.set_xlim(0, 20)
 
 for model_name, cols in models.items():
     data = df_clean[['epoch', cols['train_acc']]].dropna()
@@ -87,7 +94,7 @@ ax2.set_ylabel('Training Instance Accuracy', fontsize=12, fontweight='bold')
 ax2.set_title('Training Instance Accuracy Over Training', fontsize=14, fontweight='bold')
 ax2.legend(fontsize=9, loc='lower right')
 ax2.grid(True, alpha=0.3)
-ax2.set_xlim(0, 51)
+ax2.set_xlim(0, 20)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'msg_training_test_accuracy.png', dpi=300, bbox_inches='tight')
@@ -110,7 +117,7 @@ ax.set_ylabel('Test Class Accuracy', fontsize=12, fontweight='bold')
 ax.set_title('Test Class Accuracy Comparison Across MSG Configurations', fontsize=14, fontweight='bold')
 ax.legend(fontsize=10, loc='lower right')
 ax.grid(True, alpha=0.3)
-ax.set_xlim(0, 51)
+ax.set_xlim(0, 20)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'msg_class_accuracy.png', dpi=300, bbox_inches='tight')
@@ -284,8 +291,10 @@ fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 # Group by configuration parameters
 config_groups = {
     'Width Effect': [
-        ('Vanilla (w=1)', 'Vanilla MSG', best_results['Vanilla MSG']),
-        ('Modified (w=1.5)', 'Modified (w=1.5, d=1, r=True)', best_results['Modified (w=1.5, d=1, r=True)'])
+        ('w=0.8', 'Modified (w=0.8, d=1, r=False)', best_results['Modified (w=0.8, d=1, r=False)']),
+        ('w=1.0 (Vanilla)', 'Vanilla MSG', best_results['Vanilla MSG']),
+        ('w=1.0 (Modified)', 'Modified (w=1, d=1, r=False)', best_results['Modified (w=1, d=1, r=False)']),
+        ('w=1.5', 'Modified (w=1.5, d=1, r=True)', best_results['Modified (w=1.5, d=1, r=True)'])
     ],
     'Depth Effect': [
         ('Baseline', 'Vanilla MSG', best_results['Vanilla MSG']),
@@ -308,14 +317,14 @@ bars2 = axes[0, 0].bar(x + width/2, class_vals, width, label='Class Acc', alpha=
 axes[0, 0].set_ylabel('Accuracy (%)', fontsize=11, fontweight='bold')
 axes[0, 0].set_title('Width Parameter Effect', fontsize=13, fontweight='bold')
 axes[0, 0].set_xticks(x)
-axes[0, 0].set_xticklabels(labels, fontsize=10)
+axes[0, 0].set_xticklabels(labels, fontsize=9, rotation=15, ha='right')
 axes[0, 0].legend(fontsize=10)
 axes[0, 0].grid(True, alpha=0.3, axis='y')
 for bars in [bars1, bars2]:
     for bar in bars:
         height = bar.get_height()
         axes[0, 0].text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                        f'{height:.1f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
+                        f'{height:.1f}%', ha='center', va='bottom', fontsize=8, fontweight='bold')
 
 # Depth effect
 labels = [item[0] for item in config_groups['Depth Effect']]
@@ -486,15 +495,22 @@ report.append("=" * 80)
 # Analyze configuration effects
 vanilla_test = best_results['Vanilla MSG']['test_acc']
 depth_test = best_results['Modified (w=1, d=1, r=False)']['test_acc']
-width_test = best_results['Modified (w=1.5, d=1, r=True)']['test_acc']
+width_15_test = best_results['Modified (w=1.5, d=1, r=True)']['test_acc']
+width_08_test = best_results['Modified (w=0.8, d=1, r=False)']['test_acc']
 residual_test = best_results['Modified (w=1, d=1, r=True)']['test_acc']
 
-report.append(f"1. Depth Effect: Adding depth (d=1) improved test accuracy by {(depth_test - vanilla_test)*100:.2f}%")
-report.append(f"   ({vanilla_test*100:.2f}% -> {depth_test*100:.2f}%)")
+report.append(f"1. Depth Effect: Adding depth (d=1) to baseline:")
+report.append(f"   Vanilla (d=0): {vanilla_test*100:.2f}%")
+report.append(f"   Modified (w=1, d=1, r=False): {depth_test*100:.2f}%")
+report.append(f"   Improvement: {(depth_test - vanilla_test)*100:.2f}%")
 report.append("")
-report.append(f"2. Width Effect: Increasing width (w=1.5) with depth and residual gave {width_test*100:.2f}% test accuracy")
+report.append(f"2. Width Effect (all with d=1):")
+report.append(f"   w=0.8: {width_08_test*100:.2f}%")
+report.append(f"   w=1.0: {depth_test*100:.2f}%")
+report.append(f"   w=1.5: {width_15_test*100:.2f}%")
+report.append(f"   Best width: 1.0 or 0.8")
 report.append("")
-report.append(f"3. Residual Effect: Comparing models with same width/depth but different residual:")
+report.append(f"3. Residual Effect (w=1, d=1):")
 report.append(f"   Without residual: {depth_test*100:.2f}%")
 report.append(f"   With residual: {residual_test*100:.2f}%")
 report.append(f"   Difference: {(residual_test - depth_test)*100:.2f}%")
