@@ -1,0 +1,66 @@
+================================================================================
+POINTNET2 MSG MODEL PERFORMANCE SUMMARY REPORT
+================================================================================
+
+Total Models Evaluated: 4
+Dataset: ModelNet40
+
+--------------------------------------------------------------------------------
+TOP PERFORMING MODEL BY TEST INSTANCE ACCURACY:
+--------------------------------------------------------------------------------
+Model: Vanilla MSG
+Configuration: Baseline
+Best Test Accuracy: 91.55%
+Best Class Accuracy: 88.33%
+Final Test Accuracy: 88.51%
+Epochs Trained: 51
+
+--------------------------------------------------------------------------------
+TOP PERFORMING MODEL BY TEST CLASS ACCURACY:
+--------------------------------------------------------------------------------
+Model: Vanilla MSG
+Configuration: Baseline
+Best Test Accuracy: 91.55%
+Best Class Accuracy: 88.33%
+Final Test Accuracy: 88.51%
+Epochs Trained: 51
+
+--------------------------------------------------------------------------------
+ALL MODELS RANKED BY BEST TEST ACCURACY:
+--------------------------------------------------------------------------------
+1. Vanilla MSG
+   Test Accuracy: 91.55%
+   Class Accuracy: 88.33%
+   Epochs: 51
+
+2. Modified (w=1, d=1, r=True)
+   Test Accuracy: 90.44%
+   Class Accuracy: 86.26%
+   Epochs: 36
+
+3. Modified (w=1, d=1, r=False)
+   Test Accuracy: 90.37%
+   Class Accuracy: 86.42%
+   Epochs: 23
+
+4. Modified (w=1.5, d=1, r=True)
+   Test Accuracy: 88.94%
+   Class Accuracy: 85.16%
+   Epochs: 43
+
+================================================================================
+KEY FINDINGS:
+================================================================================
+1. Depth Effect: Adding depth (d=1) improved test accuracy by -1.17%
+   (91.55% -> 90.37%)
+
+2. Width Effect: Increasing width (w=1.5) with depth and residual gave 88.94% test accuracy
+
+3. Residual Effect: Comparing models with same width/depth but different residual:
+   Without residual: 90.37%
+   With residual: 90.44%
+   Difference: 0.07%
+
+================================================================================
+All visualizations saved to 'visualization_results_msg/' directory
+================================================================================
