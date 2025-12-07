@@ -78,7 +78,7 @@ for model_name, cols in models.items():
 
 ax1.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax1.set_ylabel('Test Instance Accuracy', fontsize=12, fontweight='bold')
-ax1.set_title('Test Instance Accuracy Over Training', fontsize=14, fontweight='bold')
+
 ax1.legend(fontsize=9, loc='lower right')
 ax1.grid(True, alpha=0.3)
 ax1.set_xlim(0, 20)
@@ -91,7 +91,7 @@ for model_name, cols in models.items():
 
 ax2.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax2.set_ylabel('Training Instance Accuracy', fontsize=12, fontweight='bold')
-ax2.set_title('Training Instance Accuracy Over Training', fontsize=14, fontweight='bold')
+
 ax2.legend(fontsize=9, loc='lower right')
 ax2.grid(True, alpha=0.3)
 ax2.set_xlim(0, 20)
@@ -114,7 +114,7 @@ for model_name, cols in models.items():
 
 ax.set_xlabel('Epoch', fontsize=12, fontweight='bold')
 ax.set_ylabel('Test Class Accuracy', fontsize=12, fontweight='bold')
-ax.set_title('Test Class Accuracy Comparison Across MSG Configurations', fontsize=14, fontweight='bold')
+
 ax.legend(fontsize=10, loc='lower right')
 ax.grid(True, alpha=0.3)
 ax.set_xlim(0, 20)
@@ -382,6 +382,33 @@ for i, (bar, val) in enumerate(zip(bars, test_accs)):
 plt.tight_layout()
 plt.savefig(output_dir / 'msg_configuration_impact.png', dpi=300, bbox_inches='tight')
 print(f"Saved: msg_configuration_impact.png")
+plt.close()
+
+# ====================================================================================
+# 5b. Overall Model Comparison (Standalone)
+# ====================================================================================
+fig, ax = plt.subplots(figsize=(14, 8))
+
+all_models = list(best_results.keys())
+test_accs = [best_results[m]['test_acc'] * 100 for m in all_models]
+model_colors = [models[m]['color'] for m in all_models]
+
+bars = ax.bar(range(len(all_models)), test_accs, color=model_colors, 
+              alpha=0.7, edgecolor='black', linewidth=2)
+ax.set_ylabel('Test Accuracy (%)', fontsize=14, fontweight='bold')
+
+ax.set_xticks(range(len(all_models)))
+ax.set_xticklabels(all_models, rotation=15, ha='right', fontsize=11)
+ax.grid(True, alpha=0.3, axis='y')
+ax.set_ylim([85, 92])
+
+for i, (bar, val) in enumerate(zip(bars, test_accs)):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3, 
+            f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=12)
+
+plt.tight_layout()
+plt.savefig(output_dir / 'msg_overall_model_comparison.png', dpi=300, bbox_inches='tight')
+print(f"Saved: msg_overall_model_comparison.png")
 plt.close()
 
 # ====================================================================================
