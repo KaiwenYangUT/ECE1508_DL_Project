@@ -207,6 +207,103 @@ print(f"Saved: msg_performance_comparison.png")
 plt.close()
 
 # ====================================================================================
+# 3a. Best Test Instance Accuracy (Standalone)
+# ====================================================================================
+fig, ax = plt.subplots(figsize=(14, 8))
+
+bars = ax.bar(range(len(model_names)), test_accs, color=colors, alpha=0.7, edgecolor='black', linewidth=2)
+ax.set_ylabel('Accuracy (%)', fontsize=14, fontweight='bold')
+
+ax.set_xticks(range(len(model_names)))
+ax.set_xticklabels(model_names, rotation=15, ha='right', fontsize=11)
+ax.grid(True, alpha=0.3, axis='y')
+ax.set_ylim([85, 92])
+
+for i, (bar, val) in enumerate(zip(bars, test_accs)):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3, 
+            f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=12)
+
+plt.tight_layout()
+plt.savefig(output_dir / 'msg_best_test_accuracy.png', dpi=300, bbox_inches='tight')
+print(f"Saved: msg_best_test_accuracy.png")
+plt.close()
+
+# ====================================================================================
+# 3b. Best Test Class Accuracy (Standalone)
+# ====================================================================================
+fig, ax = plt.subplots(figsize=(14, 8))
+
+bars = ax.bar(range(len(model_names)), class_accs, color=colors, alpha=0.7, edgecolor='black', linewidth=2)
+ax.set_ylabel('Accuracy (%)', fontsize=14, fontweight='bold')
+ax.set_title('Best Test Class Accuracy', fontsize=16, fontweight='bold', pad=20)
+ax.set_xticks(range(len(model_names)))
+ax.set_xticklabels(model_names, rotation=15, ha='right', fontsize=11)
+ax.grid(True, alpha=0.3, axis='y')
+ax.set_ylim([80, 88])
+
+for i, (bar, val) in enumerate(zip(bars, class_accs)):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3, 
+            f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=12)
+
+plt.tight_layout()
+plt.savefig(output_dir / 'msg_best_class_accuracy.png', dpi=300, bbox_inches='tight')
+print(f"Saved: msg_best_class_accuracy.png")
+plt.close()
+
+# ====================================================================================
+# 3c. Final Epoch Train vs Test Accuracy (Standalone)
+# ====================================================================================
+fig, ax = plt.subplots(figsize=(14, 8))
+
+x = np.arange(len(model_names))
+width = 0.35
+bars1 = ax.bar(x - width/2, final_train, width, label='Train', alpha=0.7, edgecolor='black', linewidth=2, color='#4472C4')
+bars2 = ax.bar(x + width/2, final_test, width, label='Test', alpha=0.7, edgecolor='black', linewidth=2, color='#ED7D31')
+ax.set_ylabel('Accuracy (%)', fontsize=14, fontweight='bold')
+
+ax.set_xticks(x)
+ax.set_xticklabels(model_names, rotation=15, ha='right', fontsize=11)
+ax.legend(fontsize=12, loc='lower left')
+ax.grid(True, alpha=0.3, axis='y')
+ax.set_ylim([75, 95])
+
+plt.tight_layout()
+plt.savefig(output_dir / 'msg_train_vs_test_final.png', dpi=300, bbox_inches='tight')
+print(f"Saved: msg_train_vs_test_final.png")
+plt.close()
+
+# ====================================================================================
+# 3d. Overfitting Analysis - LINE CHART (Standalone)
+# ====================================================================================
+fig, ax = plt.subplots(figsize=(14, 8))
+
+# Calculate overfitting gap across all epochs for each model
+for model_name, cols in models.items():
+    train_data = df_clean[['epoch', cols['train_acc']]].dropna()
+    test_data = df_clean[['epoch', cols['test_acc']]].dropna()
+    
+    # Merge on epoch to ensure alignment
+    merged = pd.merge(train_data, test_data, on='epoch', suffixes=('_train', '_test'))
+    merged['gap'] = (merged[cols['train_acc']] - merged[cols['test_acc']]) * 100
+    
+    ax.plot(merged['epoch'], merged['gap'], 
+            marker='o', markersize=6, linewidth=2.5, 
+            label=model_name, color=models[model_name]['color'], alpha=0.8)
+
+ax.set_xlabel('Epoch', fontsize=14, fontweight='bold')
+ax.set_ylabel('Overfitting Gap (%)', fontsize=14, fontweight='bold')
+
+ax.legend(fontsize=11, loc='best')
+ax.grid(True, alpha=0.3)
+ax.axhline(y=0, color='red', linestyle='--', linewidth=2, alpha=0.7, label='No Gap')
+ax.set_xlim(0, 20)
+
+plt.tight_layout()
+plt.savefig(output_dir / 'msg_overfitting_analysis.png', dpi=300, bbox_inches='tight')
+print(f"Saved: msg_overfitting_analysis.png")
+plt.close()
+
+# ====================================================================================
 # 4. Learning Curves Comparison (First 20 Epochs)
 # ====================================================================================
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
