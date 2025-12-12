@@ -42,7 +42,7 @@ python test_classification.py --log_dir pointnet2_cls_ssg --num_category 10
 
 ### Performance of classification in MSG model
 | Model | test_instance_acc | class_acc |
-|--|--|
+|--|--|--|
 | vanilla msg model(width=1,deepth=0,res=False)| 88.5 | 86.1 |
 | modified msg model(width=1.5,deepth=1,res=True) | 87.1 | 82.3 |
 | modified msg model(width=1,deepth=1,res=False) | 90.3 | 86.2 |
