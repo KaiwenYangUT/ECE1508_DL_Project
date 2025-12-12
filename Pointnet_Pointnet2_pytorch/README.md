@@ -20,13 +20,13 @@ You can run different modes with following codes.
 # ModelNet40
 ## Select different models in ./models 
 
-## e.g., pointnet2_ssg without normal features
-python train_classification.py --model pointnet2_cls_ssg --log_dir pointnet2_cls_ssg
-python test_classification.py --log_dir pointnet2_cls_ssg
+## e.g., pointnet2_msg without normal features
+python train_classification.py --model pointnet2_cls_msg --log_dir pointnet2_cls_msg
+python test_classification.py --log_dir pointnet2_cls_msg
 
-## e.g., pointnet2_ssg with normal features
-python train_classification.py --model pointnet2_cls_ssg --use_normals --log_dir pointnet2_cls_ssg_normal
-python test_classification.py --use_normals --log_dir pointnet2_cls_ssg_normal
+## e.g., pointnet2_msg with normal features
+python train_classification.py --model pointnet2_cls_msg --use_normals --log_dir pointnet2_cls_msg_normal
+python test_classification.py --use_normals --log_dir pointnet2_cls_msg_normal
 
 ## e.g., pointnet2_ssg with uniform sampling
 python train_classification.py --model pointnet2_cls_ssg --use_uniform_sample --log_dir pointnet2_cls_ssg_fps
