@@ -1,6 +1,7 @@
 # PointNet++ for pointcloud classification in MSG model
 
 This repo is based on [PointNet](http://openaccess.thecvf.com/content_cvpr_2017/papers/Qi_PointNet_Deep_Learning_CVPR_2017_paper.pdf) and [PointNet++](http://papers.nips.cc/paper/7095-pointnet-deep-hierarchical-feature-learning-on-point-sets-in-a-metric-space.pdf) in pytorch.
+
 The goal is to understand how simple architectural changes within the PointNet++ framework influence accuracy on 3D shape classification.
 
 ## Install
