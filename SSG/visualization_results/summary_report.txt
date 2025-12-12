@@ -1,0 +1,76 @@
+================================================================================
+POINTNET2 SSG MODEL PERFORMANCE SUMMARY REPORT
+================================================================================
+
+Model: Baseline (d=0, w=1.0, r=False)
+Configuration: deepen=0, widen=1.0, residual=False
+Best Test Instance Accuracy: 79.17%
+Best Test Class Accuracy: 76.89%
+Total Training Time: 130.23 minutes
+Final Train Accuracy: 83.20%
+Final Test Accuracy: 67.92%
+--------------------------------------------------------------------------------
+
+Model: Deepen=1
+Configuration: deepen=1, widen=1.0, residual=False
+Best Test Instance Accuracy: 85.54%
+Best Test Class Accuracy: 79.42%
+Total Training Time: 135.13 minutes
+Final Train Accuracy: 81.19%
+Final Test Accuracy: 85.54%
+--------------------------------------------------------------------------------
+
+Model: Residual=True
+Configuration: deepen=0, widen=1.0, residual=True
+Best Test Instance Accuracy: 82.93%
+Best Test Class Accuracy: 76.23%
+Total Training Time: 136.19 minutes
+Final Train Accuracy: 83.33%
+Final Test Accuracy: 79.49%
+--------------------------------------------------------------------------------
+
+Model: Widen=1.5
+Configuration: deepen=0, widen=1.5, residual=False
+Best Test Instance Accuracy: 74.65%
+Best Test Class Accuracy: 70.93%
+Total Training Time: 138.88 minutes
+Final Train Accuracy: 82.50%
+Final Test Accuracy: 69.32%
+--------------------------------------------------------------------------------
+
+Model: Deepen=1 + Residual
+Configuration: deepen=1, widen=1.0, residual=True
+Best Test Instance Accuracy: 80.75%
+Best Test Class Accuracy: 74.54%
+Total Training Time: 138.39 minutes
+Final Train Accuracy: 82.59%
+Final Test Accuracy: 77.14%
+--------------------------------------------------------------------------------
+
+Model: Deepen=2 + Residual
+Configuration: deepen=2, widen=1.0, residual=True
+Best Test Instance Accuracy: 72.19%
+Best Test Class Accuracy: 70.46%
+Total Training Time: 141.34 minutes
+Final Train Accuracy: 82.45%
+Final Test Accuracy: 63.41%
+--------------------------------------------------------------------------------
+
+Model: Widen=1.5 + Deepen=1 + Residual
+Configuration: deepen=1, widen=1.5, residual=True
+Best Test Instance Accuracy: 72.56%
+Best Test Class Accuracy: 64.69%
+Total Training Time: 148.59 minutes
+Final Train Accuracy: 81.66%
+Final Test Accuracy: 59.30%
+--------------------------------------------------------------------------------
+
+Model: Widen=0.9
+Configuration: deepen=0, widen=0.9, residual=False
+Best Test Instance Accuracy: 81.98%
+Best Test Class Accuracy: 76.00%
+Total Training Time: 131.32 minutes
+Final Train Accuracy: 82.63%
+Final Test Accuracy: 78.21%
+--------------------------------------------------------------------------------
+
