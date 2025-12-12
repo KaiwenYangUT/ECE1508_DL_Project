@@ -59,6 +59,22 @@ python test_classification.py --use_normals --log_dir pointnet2_cls_msg_normal
 | modified msg model(width=1,deepth=1,res=True) |  89.7 | 86.0 |
 | modified msg model(width=0.8,deepth=1,res=False) | 90.3 | 86.4 |
 
+## Experimental Results and Key Findings
+
+Our experiments show that the best Multi-Scale Grouping (MSG) variants achieve over **90% test accuracy**, slightly outperforming the vanilla MSG baseline (**88.6%**).
+
+The strongest configurations are:
+- **Moderate depth only** (`deepen = 1`), achieving **90.37%** test accuracy.
+- **Moderate depth with width shrinkage** (`deepen = 1`, `width shrink = 0.8`), achieving **90.33%** test accuracy.
+
+In contrast, adding residual connections consistently resulted in a slight performance degradation, and excessively wide networks performed worse. Overall, these results suggest a clear trend: **moderate depth provides the best performance trade-off**, while overly complex architectures do not yield further gains.
+
+## MSG vs. SSG Comparison
+
+Compared to Single-Scale Grouping (SSG), Multi-Scale Grouping (MSG) converges faster and more smoothly during training.  
+MSG models achieve higher training accuracy, while test accuracy stabilizes earlier, indicating improved training stability.
+
+These results confirm that multi-scale grouping improves robustness to variations in point density. In addition, MSG exhibits significantly reduced overfitting compared to SSG, further supporting its effectiveness for point-cloud classification tasks.
 
 ## Reference By
 [halimacc/pointnet3](https://github.com/halimacc/pointnet3)<br>
