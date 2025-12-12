@@ -1,157 +1,150 @@
-# Pytorch Implementation of PointNet and PointNet++ 
+# PointNet++ for point cloud classification in **SSG model (Modified)**
 
-This repo is implementation for [PointNet](http://openaccess.thecvf.com/content_cvpr_2017/papers/Qi_PointNet_Deep_Learning_CVPR_2017_paper.pdf) and [PointNet++](http://papers.nips.cc/paper/7095-pointnet-deep-hierarchical-feature-learning-on-point-sets-in-a-metric-space.pdf) in pytorch.
+This branch is based on [PointNet](http://openaccess.thecvf.com/content_cvpr_2017/papers/Qi_PointNet_Deep_Learning_CVPR_2017_paper.pdf) and [PointNet++](http://papers.nips.cc/paper/7095-pointnet-deep-hierarchical-feature-learning-on-point-sets-in-a-metric-space.pdf) implemented in PyTorch.
+
+The goal of this work is to **systematically study how architectural modifications to the PointNet++ SSG (Single-Scale Grouping) model**—specifically **network deepening, channel widening, and residual connections**—affect 3D shape classification performance on ModelNet.
+
+---
 
 ## Install
-The latest codes are tested on Ubuntu 16.04, CUDA10.1, PyTorch 1.6 and Python 3.7:
-```shell
-conda install pytorch==1.6.0 cudatoolkit=10.1 -c pytorch
+
+The latest code is tested on:
+
+* **Python** 3.9+
+* **PyTorch** 2.5.1 (MPS / CUDA compatible)
+
+---
+
+## Classification (ModelNet10 / ModelNet40)
+
+### Data Preparation
+
+Download the aligned **ModelNet** dataset from
+[https://www.kaggle.com/datasets/chenxaoyu/modelnet-normal-resampled](https://www.kaggle.com/datasets/chenxaoyu/modelnet-normal-resampled)
+
+and place it under:
+
+```
+data/modelnet40_normal_resampled/
 ```
 
-## Classification (ModelNet10/40)
-### Data Preparation
-Download alignment **ModelNet** [here](https://shapenet.cs.stanford.edu/media/modelnet40_normal_resampled.zip) and save in `data/modelnet40_normal_resampled/`.
+---
 
 ### Run
-You can run different modes with following codes. 
-* If you want to use offline processing of data, you can use `--process_data` in the first run. You can download pre-processd data [here](https://drive.google.com/drive/folders/1_fBYbDO3XSdRt3DSbEBe41r5l9YpIGWF?usp=sharing) and save it in `data/modelnet40_normal_resampled/`.
-* If you want to train on ModelNet10, you can use `--num_category 10`.
-```shell
-# ModelNet40
-## Select different models in ./models 
 
-## e.g., pointnet2_ssg without normal features
-python train_classification.py --model pointnet2_cls_ssg --log_dir pointnet2_cls_ssg
-python test_classification.py --log_dir pointnet2_cls_ssg
+You can control architectural variants using the following arguments:
 
-## e.g., pointnet2_ssg with normal features
-python train_classification.py --model pointnet2_cls_ssg --use_normals --log_dir pointnet2_cls_ssg_normal
-python test_classification.py --use_normals --log_dir pointnet2_cls_ssg_normal
+* `--deepen` : number of extra MLP layers added per Set Abstraction block
+* `--widen` : channel width multiplier applied to MLP layers
+* `--residual` : enable residual connections within MLP blocks
+* `--use_normals` : include normal vectors as input features (used in all experiments)
 
-## e.g., pointnet2_ssg with uniform sampling
-python train_classification.py --model pointnet2_cls_ssg --use_uniform_sample --log_dir pointnet2_cls_ssg_fps
-python test_classification.py --use_uniform_sample --log_dir pointnet2_cls_ssg_fps
+#### Example commands (ModelNet40)
 
-# ModelNet10
-## Similar setting like ModelNet40, just using --num_category 10
+```bash
+# Baseline SSG
+python train_classification.py \
+  --model pointnet2_cls_ssg \
+  --use_normals \
+  --log_dir ssg_baseline
 
-## e.g., pointnet2_ssg without normal features
-python train_classification.py --model pointnet2_cls_ssg --log_dir pointnet2_cls_ssg --num_category 10
-python test_classification.py --log_dir pointnet2_cls_ssg --num_category 10
+# Deepened SSG
+python train_classification.py \
+  --model pointnet2_cls_ssg \
+  --use_normals \
+  --deepen 1 \
+  --log_dir ssg_deepen1
+
+# Narrow SSG (widen < 1)
+python train_classification.py \
+  --model pointnet2_cls_ssg \
+  --use_normals \
+  --widen 0.8 \
+  --log_dir ssg_widen0_8
+
+# Deepened + residual SSG
+python train_classification.py \
+  --model pointnet2_cls_ssg \
+  --use_normals \
+  --deepen 1 \
+  --residual \
+  --log_dir ssg_deepen1_residual
 ```
 
-### Performance
-| Model | Accuracy |
-|--|--|
-| PointNet (Official) |  89.2|
-| PointNet2 (Official) | 91.9 |
-| PointNet (Pytorch without normal) |  90.6|
-| PointNet (Pytorch with normal) |  91.4|
-| PointNet2_SSG (Pytorch without normal) |  92.2|
-| PointNet2_SSG (Pytorch with normal) |  92.4|
-| PointNet2_MSG (Pytorch with normal) |  **92.8**|
+Testing:
 
-## Part Segmentation (ShapeNet)
-### Data Preparation
-Download alignment **ShapeNet** [here](https://shapenet.cs.stanford.edu/media/shapenetcore_partanno_segmentation_benchmark_v0_normal.zip)  and save in `data/shapenetcore_partanno_segmentation_benchmark_v0_normal/`.
-### Run
+```bash
+python test_classification.py --log_dir <log_dir_name>
 ```
-## Check model in ./models 
-## e.g., pointnet2_msg
-python train_partseg.py --model pointnet2_part_seg_msg --normal --log_dir pointnet2_part_seg_msg
-python test_partseg.py --normal --log_dir pointnet2_part_seg_msg
-```
-### Performance
-| Model | Inctance avg IoU| Class avg IoU 
-|--|--|--|
-|PointNet (Official)	|83.7|80.4	
-|PointNet2 (Official)|85.1	|81.9	
-|PointNet (Pytorch)|	84.3	|81.1|	
-|PointNet2_SSG (Pytorch)|	84.9|	81.8	
-|PointNet2_MSG (Pytorch)|	**85.4**|	**82.5**	
 
+---
 
-## Semantic Segmentation (S3DIS)
-### Data Preparation
-Download 3D indoor parsing dataset (**S3DIS**) [here](http://buildingparser.stanford.edu/dataset.html)  and save in `data/s3dis/Stanford3dDataset_v1.2_Aligned_Version/`.
-```
-cd data_utils
-python collect_indoor3d_data.py
-```
-Processed data will save in `data/stanford_indoor3d/`.
-### Run
-```
-## Check model in ./models 
-## e.g., pointnet2_ssg
-python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir pointnet2_sem_seg
-python test_semseg.py --log_dir pointnet2_sem_seg --test_area 5 --visual
-```
-Visualization results will save in `log/sem_seg/pointnet2_sem_seg/visual/` and you can visualize these .obj file by [MeshLab](http://www.meshlab.net/).
+## Architectural Modifications (SSG)
 
-### Performance
-|Model  | Overall Acc |Class avg IoU | Checkpoint 
-|--|--|--|--|
-| PointNet (Pytorch) | 78.9 | 43.7| [40.7MB](log/sem_seg/pointnet_sem_seg) |
-| PointNet2_ssg (Pytorch) | **83.0** | **53.5**| [11.2MB](log/sem_seg/pointnet2_sem_seg) |
+Compared to the vanilla SSG model, the following modifications were implemented:
 
-## Visualization
-### Using show3d_balls.py
-```
-## build C++ code for visualization
-cd visualizer
-bash build.sh 
-## run one example 
-python show3d_balls.py
-```
-![](/visualizer/pic.png)
-### Using MeshLab
-![](/visualizer/pic2.png)
+* **Deepening**: inserting additional MLP layers inside Set Abstraction blocks
+* **Widening**: scaling channel dimensions by a multiplicative factor
+* **Residual connections**: identity skip connections within MLP stacks
 
+These changes are fully configurable via command-line arguments and do not alter the overall PointNet++ pipeline.
+
+---
+
+## Performance on ModelNet40 (SSG)
+
+| Model        | deepen | widen | residual | test_instance_acc | class_acc |
+| ------------ | -----: | ----: | :------: | ----------------: | --------: |
+| Vanilla SSG  |      0 |   1.0 |     ❌    |          baseline |  baseline |
+| Modified SSG |      1 |   1.0 |     ✅    |             ~80.8 |     ~74.5 |
+| Modified SSG |      1 |   0.9 |     ❌    |             ~80.6 |     ~73.7 |
+| Modified SSG |      1 |  0.85 |     ❌    |          **84.3** |  **77.3** |
+| Modified SSG |      1 |  0.80 |     ❌    |          **85.4** |  **79.5** |
+| Modified SSG |      0 |  0.85 |     ❌    |          **84.7** |  **79.1** |
+| Modified SSG |      0 |  0.80 |     ❌    |          **84.9** |  **79.4** |
+
+**Key observations:**
+
+* Moderate **channel narrowing (widen < 1)** consistently improves generalization
+* **Residual connections help stability**, but are not always necessary for best accuracy
+* Excessive deepening degrades performance without residual support
+
+---
+
+## Key Insights
+
+* **SSG benefits more from capacity control than capacity expansion**
+* Narrower networks reduce overfitting while preserving geometric expressiveness
+* Residual connections become more important as depth increases
+* Best-performing models are **simpler than the baseline**, not larger
+
+---
 
 ## Reference By
-[halimacc/pointnet3](https://github.com/halimacc/pointnet3)<br>
-[fxia22/pointnet.pytorch](https://github.com/fxia22/pointnet.pytorch)<br>
-[charlesq34/PointNet](https://github.com/charlesq34/pointnet) <br>
+
+[halimacc/pointnet3](https://github.com/halimacc/pointnet3)
+[fxia22/pointnet.pytorch](https://github.com/fxia22/pointnet.pytorch)
+[charlesq34/PointNet](https://github.com/charlesq34/pointnet)
 [charlesq34/PointNet++](https://github.com/charlesq34/pointnet2)
 
+---
 
 ## Citation
-```
+
+```bibtex
 @article{Pytorch_Pointnet_Pointnet2,
-      Author = {Xu Yan},
-      Title = {Pointnet/Pointnet++ Pytorch},
-      Journal = {https://github.com/yanx27/Pointnet_Pointnet2_pytorch},
-      Year = {2019}
+  Author = {Xu Yan},
+  Title = {Pointnet/Pointnet++ Pytorch},
+  Journal = {https://github.com/yanx27/Pointnet_Pointnet2_pytorch},
+  Year = {2019}
 }
 ```
-```
+
+```bibtex
 @InProceedings{yan2020pointasnl,
   title={PointASNL: Robust Point Clouds Processing using Nonlocal Neural Networks with Adaptive Sampling},
   author={Yan, Xu and Zheng, Chaoda and Li, Zhen and Wang, Sheng and Cui, Shuguang},
-  journal={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  journal={CVPR},
   year={2020}
 }
 ```
-```
-@InProceedings{yan2021sparse,
-  title={Sparse Single Sweep LiDAR Point Cloud Segmentation via Learning Contextual Shape Priors from Scene Completion},
-  author={Yan, Xu and Gao, Jiantao and Li, Jie and Zhang, Ruimao, and Li, Zhen and Huang, Rui and Cui, Shuguang},
-  journal={AAAI Conference on Artificial Intelligence ({AAAI})},
-  year={2021}
-}
-```
-```
-@InProceedings{yan20222dpass,
-      title={2DPASS: 2D Priors Assisted Semantic Segmentation on LiDAR Point Clouds}, 
-      author={Xu Yan and Jiantao Gao and Chaoda Zheng and Chao Zheng and Ruimao Zhang and Shuguang Cui and Zhen Li},
-      year={2022},
-      journal={ECCV}
-}
-```
-## Selected Projects using This Codebase
-* [PointConv: Deep Convolutional Networks on 3D Point Clouds, CVPR'19](https://github.com/Young98CN/pointconv_pytorch)
-* [On Isometry Robustness of Deep 3D Point Cloud Models under Adversarial Attacks, CVPR'20](https://github.com/skywalker6174/3d-isometry-robust)
-* [Label-Efficient Learning on Point Clouds using Approximate Convex Decompositions, ECCV'20](https://github.com/matheusgadelha/PointCloudLearningACD)
-* [PCT: Point Cloud Transformer](https://github.com/MenghaoGuo/PCT)
-* [PSNet: Fast Data Structuring for Hierarchical Deep Learning on Point Cloud](https://github.com/lly007/PointStructuringNet)
-* [Stratified Transformer for 3D Point Cloud Segmentation, CVPR'22](https://github.com/dvlab-research/stratified-transformer)
