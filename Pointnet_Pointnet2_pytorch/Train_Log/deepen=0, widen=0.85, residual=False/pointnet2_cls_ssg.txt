@@ -1,0 +1,69 @@
+2025-12-06 00:35:21,441 - Model - INFO - PARAMETER ...
+2025-12-06 00:35:21,442 - Model - INFO - Namespace(use_cpu=False, gpu='0', batch_size=24, model='pointnet2_cls_ssg', num_category=40, epoch=10, learning_rate=0.001, num_point=1024, optimizer='Adam', log_dir='ssg_deepen0_widen0_85_e10', decay_rate=0.0001, use_normals=True, process_data=False, use_uniform_sample=False, deepen=0, widen=0.85, residual=False)
+2025-12-06 00:35:21,442 - Model - INFO - Load dataset ...
+2025-12-06 00:35:21,486 - Model - INFO - No existing model, starting training from scratch...
+2025-12-06 00:35:22,054 - Model - INFO - Start training...
+2025-12-06 00:35:22,054 - Model - INFO - Epoch 1 (1/10):
+2025-12-06 00:45:28,600 - Model - INFO - Train Instance Accuracy: 0.513415
+2025-12-06 00:48:25,328 - Model - INFO - Test Instance Accuracy: 0.555825, Class Accuracy: 0.445788
+2025-12-06 00:48:25,329 - Model - INFO - Best Instance Accuracy: 0.555825, Class Accuracy: 0.445788
+2025-12-06 00:48:25,329 - Model - INFO - Epoch Time: 783.28 seconds
+2025-12-06 00:48:25,329 - Model - INFO - Save model...
+2025-12-06 00:48:25,329 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 00:48:25,420 - Model - INFO - Epoch 2 (2/10):
+2025-12-06 00:58:26,762 - Model - INFO - Train Instance Accuracy: 0.671443
+2025-12-06 01:01:23,738 - Model - INFO - Test Instance Accuracy: 0.601052, Class Accuracy: 0.488921
+2025-12-06 01:01:23,739 - Model - INFO - Best Instance Accuracy: 0.601052, Class Accuracy: 0.488921
+2025-12-06 01:01:23,740 - Model - INFO - Epoch Time: 778.32 seconds
+2025-12-06 01:01:23,740 - Model - INFO - Save model...
+2025-12-06 01:01:23,740 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 01:01:23,839 - Model - INFO - Epoch 3 (3/10):
+2025-12-06 01:11:23,292 - Model - INFO - Train Instance Accuracy: 0.727439
+2025-12-06 01:14:20,601 - Model - INFO - Test Instance Accuracy: 0.712298, Class Accuracy: 0.644284
+2025-12-06 01:14:20,603 - Model - INFO - Best Instance Accuracy: 0.712298, Class Accuracy: 0.644284
+2025-12-06 01:14:20,603 - Model - INFO - Epoch Time: 776.76 seconds
+2025-12-06 01:14:20,603 - Model - INFO - Save model...
+2025-12-06 01:14:20,603 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 01:14:20,704 - Model - INFO - Epoch 4 (4/10):
+2025-12-06 01:24:22,106 - Model - INFO - Train Instance Accuracy: 0.759045
+2025-12-06 01:27:19,454 - Model - INFO - Test Instance Accuracy: 0.649191, Class Accuracy: 0.564332
+2025-12-06 01:27:19,455 - Model - INFO - Best Instance Accuracy: 0.712298, Class Accuracy: 0.644284
+2025-12-06 01:27:19,456 - Model - INFO - Epoch Time: 778.75 seconds
+2025-12-06 01:27:19,456 - Model - INFO - Epoch 5 (5/10):
+2025-12-06 01:37:20,283 - Model - INFO - Train Instance Accuracy: 0.780488
+2025-12-06 01:40:17,646 - Model - INFO - Test Instance Accuracy: 0.819337, Class Accuracy: 0.739058
+2025-12-06 01:40:17,648 - Model - INFO - Best Instance Accuracy: 0.819337, Class Accuracy: 0.739058
+2025-12-06 01:40:17,648 - Model - INFO - Epoch Time: 778.19 seconds
+2025-12-06 01:40:17,648 - Model - INFO - Save model...
+2025-12-06 01:40:17,648 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 01:40:17,729 - Model - INFO - Epoch 6 (6/10):
+2025-12-06 01:50:18,911 - Model - INFO - Train Instance Accuracy: 0.797866
+2025-12-06 01:53:16,663 - Model - INFO - Test Instance Accuracy: 0.825324, Class Accuracy: 0.766632
+2025-12-06 01:53:16,665 - Model - INFO - Best Instance Accuracy: 0.825324, Class Accuracy: 0.766632
+2025-12-06 01:53:16,665 - Model - INFO - Epoch Time: 778.94 seconds
+2025-12-06 01:53:16,665 - Model - INFO - Save model...
+2025-12-06 01:53:16,665 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 01:53:16,764 - Model - INFO - Epoch 7 (7/10):
+2025-12-06 02:03:17,366 - Model - INFO - Train Instance Accuracy: 0.811382
+2025-12-06 02:06:15,427 - Model - INFO - Test Instance Accuracy: 0.789644, Class Accuracy: 0.729532
+2025-12-06 02:06:15,429 - Model - INFO - Best Instance Accuracy: 0.825324, Class Accuracy: 0.766632
+2025-12-06 02:06:15,429 - Model - INFO - Epoch Time: 778.66 seconds
+2025-12-06 02:06:15,429 - Model - INFO - Epoch 8 (8/10):
+2025-12-06 02:16:17,009 - Model - INFO - Train Instance Accuracy: 0.823171
+2025-12-06 02:19:15,251 - Model - INFO - Test Instance Accuracy: 0.847330, Class Accuracy: 0.791346
+2025-12-06 02:19:15,253 - Model - INFO - Best Instance Accuracy: 0.847330, Class Accuracy: 0.791346
+2025-12-06 02:19:15,253 - Model - INFO - Epoch Time: 779.82 seconds
+2025-12-06 02:19:15,253 - Model - INFO - Save model...
+2025-12-06 02:19:15,253 - Model - INFO - Saving at log/classification/ssg_deepen0_widen0_85_e10/checkpoints/best_model.pth
+2025-12-06 02:19:15,353 - Model - INFO - Epoch 9 (9/10):
+2025-12-06 02:29:16,318 - Model - INFO - Train Instance Accuracy: 0.831402
+2025-12-06 02:32:14,902 - Model - INFO - Test Instance Accuracy: 0.816262, Class Accuracy: 0.778292
+2025-12-06 02:32:14,904 - Model - INFO - Best Instance Accuracy: 0.847330, Class Accuracy: 0.791346
+2025-12-06 02:32:14,904 - Model - INFO - Epoch Time: 779.55 seconds
+2025-12-06 02:32:14,904 - Model - INFO - Epoch 10 (10/10):
+2025-12-06 02:42:17,140 - Model - INFO - Train Instance Accuracy: 0.833943
+2025-12-06 02:45:15,509 - Model - INFO - Test Instance Accuracy: 0.831311, Class Accuracy: 0.781683
+2025-12-06 02:45:15,511 - Model - INFO - Best Instance Accuracy: 0.847330, Class Accuracy: 0.791346
+2025-12-06 02:45:15,511 - Model - INFO - Epoch Time: 780.61 seconds
+2025-12-06 02:45:15,511 - Model - INFO - Total Training Time: 129.89 minutes (7793.46 seconds)
+2025-12-06 02:45:15,511 - Model - INFO - End of training...
