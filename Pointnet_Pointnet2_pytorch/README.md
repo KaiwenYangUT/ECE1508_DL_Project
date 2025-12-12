@@ -10,7 +10,7 @@ conda install pytorch==1.6.0 cudatoolkit=10.1 -c pytorch
 
 ## Classification (ModelNet10/40)
 ### Data Preparation
-Download alignment **ModelNet** [here](https://shapenet.cs.stanford.edu/media/modelnet40_normal_resampled.zip) and save in `data/modelnet40_normal_resampled/`.
+Download alignment **ModelNet** [here](https://www.kaggle.com/datasets/chenxaoyu/modelnet-normal-resampled) and save in `data/modelnet40_normal_resampled/`.
 
 ### Run
 You can run different modes with following codes. 
@@ -40,72 +40,14 @@ python train_classification.py --model pointnet2_cls_ssg --log_dir pointnet2_cls
 python test_classification.py --log_dir pointnet2_cls_ssg --num_category 10
 ```
 
-### Performance
-| Model | Accuracy |
+### Performance of classification in MSG model
+| Model | test_instance_acc | class_acc |
 |--|--|
-| PointNet (Official) |  89.2|
-| PointNet2 (Official) | 91.9 |
-| PointNet (Pytorch without normal) |  90.6|
-| PointNet (Pytorch with normal) |  91.4|
-| PointNet2_SSG (Pytorch without normal) |  92.2|
-| PointNet2_SSG (Pytorch with normal) |  92.4|
-| PointNet2_MSG (Pytorch with normal) |  **92.8**|
-
-## Part Segmentation (ShapeNet)
-### Data Preparation
-Download alignment **ShapeNet** [here](https://shapenet.cs.stanford.edu/media/shapenetcore_partanno_segmentation_benchmark_v0_normal.zip)  and save in `data/shapenetcore_partanno_segmentation_benchmark_v0_normal/`.
-### Run
-```
-## Check model in ./models 
-## e.g., pointnet2_msg
-python train_partseg.py --model pointnet2_part_seg_msg --normal --log_dir pointnet2_part_seg_msg
-python test_partseg.py --normal --log_dir pointnet2_part_seg_msg
-```
-### Performance
-| Model | Inctance avg IoU| Class avg IoU 
-|--|--|--|
-|PointNet (Official)	|83.7|80.4	
-|PointNet2 (Official)|85.1	|81.9	
-|PointNet (Pytorch)|	84.3	|81.1|	
-|PointNet2_SSG (Pytorch)|	84.9|	81.8	
-|PointNet2_MSG (Pytorch)|	**85.4**|	**82.5**	
-
-
-## Semantic Segmentation (S3DIS)
-### Data Preparation
-Download 3D indoor parsing dataset (**S3DIS**) [here](http://buildingparser.stanford.edu/dataset.html)  and save in `data/s3dis/Stanford3dDataset_v1.2_Aligned_Version/`.
-```
-cd data_utils
-python collect_indoor3d_data.py
-```
-Processed data will save in `data/stanford_indoor3d/`.
-### Run
-```
-## Check model in ./models 
-## e.g., pointnet2_ssg
-python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir pointnet2_sem_seg
-python test_semseg.py --log_dir pointnet2_sem_seg --test_area 5 --visual
-```
-Visualization results will save in `log/sem_seg/pointnet2_sem_seg/visual/` and you can visualize these .obj file by [MeshLab](http://www.meshlab.net/).
-
-### Performance
-|Model  | Overall Acc |Class avg IoU | Checkpoint 
-|--|--|--|--|
-| PointNet (Pytorch) | 78.9 | 43.7| [40.7MB](log/sem_seg/pointnet_sem_seg) |
-| PointNet2_ssg (Pytorch) | **83.0** | **53.5**| [11.2MB](log/sem_seg/pointnet2_sem_seg) |
-
-## Visualization
-### Using show3d_balls.py
-```
-## build C++ code for visualization
-cd visualizer
-bash build.sh 
-## run one example 
-python show3d_balls.py
-```
-![](/visualizer/pic.png)
-### Using MeshLab
-![](/visualizer/pic2.png)
+| vanilla msg model(width=1,deepth=0,res=False)| 88.5 | 86.1 |
+| modified msg model(width=1.5,deepth=1,res=True) | 87.1 | 82.3 |
+| modified msg model(width=1,deepth=1,res=False) | 90.3 | 86.2 |
+| modified msg model(width=1,deepth=1,res=True) |  89.7 | 86.0 |
+| modified msg model(width=0.8,deepth=1,res=False) | 90.3 | 86.4 |
 
 
 ## Reference By
@@ -148,10 +90,3 @@ python show3d_balls.py
       journal={ECCV}
 }
 ```
-## Selected Projects using This Codebase
-* [PointConv: Deep Convolutional Networks on 3D Point Clouds, CVPR'19](https://github.com/Young98CN/pointconv_pytorch)
-* [On Isometry Robustness of Deep 3D Point Cloud Models under Adversarial Attacks, CVPR'20](https://github.com/skywalker6174/3d-isometry-robust)
-* [Label-Efficient Learning on Point Clouds using Approximate Convex Decompositions, ECCV'20](https://github.com/matheusgadelha/PointCloudLearningACD)
-* [PCT: Point Cloud Transformer](https://github.com/MenghaoGuo/PCT)
-* [PSNet: Fast Data Structuring for Hierarchical Deep Learning on Point Cloud](https://github.com/lly007/PointStructuringNet)
-* [Stratified Transformer for 3D Point Cloud Segmentation, CVPR'22](https://github.com/dvlab-research/stratified-transformer)
