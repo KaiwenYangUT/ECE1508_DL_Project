@@ -8,36 +8,46 @@ The goal is to understand how simple architectural changes within the PointNet++
 The latest codes are tested on torch==2.5.1+cu118 and Python 3.11.3
 
 
-## Classification (ModelNet10/40)
+## Classification (ModelNet40)
 ### Data Preparation
 Download alignment **ModelNet** [here](https://www.kaggle.com/datasets/chenxaoyu/modelnet-normal-resampled) and save in `data/modelnet40_normal_resampled/`.
 
-### Run
-You can run different modes with following codes. 
-* If you want to use offline processing of data, you can use `--process_data` in the first run. You can download pre-processd data [here](https://drive.google.com/drive/folders/1_fBYbDO3XSdRt3DSbEBe41r5l9YpIGWF?usp=sharing) and save it in `data/modelnet40_normal_resampled/`.
-* If you want to train on ModelNet10, you can use `--num_category 10`.
+### Architecture Modifications
+
+The PointNet2 MSG model was modified to support three architectural parameters:
+
+1. **`--deepen <int>`**: Number of additional Set Abstraction layers (default: 0)
+   - 0: Original architecture (3 SA layers)
+   - 1: Add one extra SA layer (4 SA layers)
+
+2. **`--widen <float>`**: Channel width multiplier for MLP layers (default: 1.0)
+   - 0.8: Narrower networks
+   - 1.0: Original width
+   - 1.5: Wider network
+
+3. **`--residual`**: Enable residual/skip connections between layers (default: False)
+
+To modify the model architecture, please update the parameters in the following files:
+
+- `models/pointnet2_cls_msg.py` (class `get_model`)
+- `models/pointnet2_utils.py` (class `PointNetSetAbstractionMsg`)
+
+### Training Configuration
+
+All experiments were conducted with the following settings:
+- **Dataset**: ModelNet40 (40 object classes)
+- **Epochs**: 20 per model
+- **Batch Size**: 4
+- **Learning Rate**: 0.001 (with decay)(Default)
+- **Optimizer**: Adam
+- **Input**: 1024 points per point cloud
+- **Use Normals**: Yes
+
+## Run
+### pointnet2_msg with normal features
 ```shell
-# ModelNet40
-## Select different models in ./models 
-
-## e.g., pointnet2_msg without normal features
-python train_classification.py --model pointnet2_cls_msg --log_dir pointnet2_cls_msg
-python test_classification.py --log_dir pointnet2_cls_msg
-
-## e.g., pointnet2_msg with normal features
 python train_classification.py --model pointnet2_cls_msg --use_normals --log_dir pointnet2_cls_msg_normal
 python test_classification.py --use_normals --log_dir pointnet2_cls_msg_normal
-
-## e.g., pointnet2_ssg with uniform sampling
-python train_classification.py --model pointnet2_cls_ssg --use_uniform_sample --log_dir pointnet2_cls_ssg_fps
-python test_classification.py --use_uniform_sample --log_dir pointnet2_cls_ssg_fps
-
-# ModelNet10
-## Similar setting like ModelNet40, just using --num_category 10
-
-## e.g., pointnet2_ssg without normal features
-python train_classification.py --model pointnet2_cls_ssg --log_dir pointnet2_cls_ssg --num_category 10
-python test_classification.py --log_dir pointnet2_cls_ssg --num_category 10
 ```
 
 ### Performance of classification in MSG model
