@@ -159,19 +159,67 @@ def sample_and_group_all(xyz, points):
 
 
 class PointNetSetAbstraction(nn.Module):
-    def __init__(self, npoint, radius, nsample, in_channel, mlp, group_all):
+    def __init__(self, 
+                 npoint, 
+                 radius, 
+                 nsample, 
+                 in_channel, 
+                 mlp, 
+                 group_all, 
+                 deepen: int = 0, 
+                 widen: float = 1.0, 
+                 residual: bool = False):
         super(PointNetSetAbstraction, self).__init__()
         self.npoint = npoint
         self.radius = radius
         self.nsample = nsample
+        self.group_all = group_all 
         self.mlp_convs = nn.ModuleList()
         self.mlp_bns = nn.ModuleList()
         last_channel = in_channel
-        for out_channel in mlp:
+
+        # --- our modification: Kaiwen ---
+        self.deepen = deepen
+        self.widen = widen
+        self.residual = residual
+
+        # process MLP widths for deepening / widening
+        orig_mlp = list(mlp)
+        proc_mlp = [int(round(c * widen)) for c in orig_mlp]  # widen
+        if deepen > 0:
+            proc_mlp = proc_mlp + [proc_mlp[-1]] * deepen     # deepen
+
+        # First layer is factored out as an explicit 1x1 conv
+        first_out = proc_mlp[0]
+
+        # NEW: explicit 1x1 conv before the MLP
+        self.conv1x1 = nn.Conv2d(in_channel, first_out, 1)
+        self.bn1x1 = nn.BatchNorm2d(first_out)
+
+        # Remaining MLP layers
+        self.mlp_convs = nn.ModuleList()
+        self.mlp_bns = nn.ModuleList()
+        last_channel = first_out
+
+        for out_channel in proc_mlp[1:]:
             self.mlp_convs.append(nn.Conv2d(last_channel, out_channel, 1))
             self.mlp_bns.append(nn.BatchNorm2d(out_channel))
             last_channel = out_channel
-        self.group_all = group_all
+        self.out_channels = last_channel
+
+        # --- NEW: residual projection (if needed) from conv1x1 output → final channels ---
+        if residual:
+            if first_out != last_channel:
+                self.res_proj = nn.Sequential(
+                    nn.Conv2d(first_out, last_channel, 1),
+                    nn.BatchNorm2d(last_channel)
+                )
+            else:
+                self.res_proj = nn.Identity()
+            self.out_channels = last_channel
+        else:
+            self.res_proj = None
+            self.out_channels = last_channel
 
     def forward(self, xyz, points):
         """
@@ -182,6 +230,7 @@ class PointNetSetAbstraction(nn.Module):
             new_xyz: sampled points position data, [B, C, S]
             new_points_concat: sample points feature data, [B, D', S]
         """
+
         xyz = xyz.permute(0, 2, 1)
         if points is not None:
             points = points.permute(0, 2, 1)
@@ -193,68 +242,42 @@ class PointNetSetAbstraction(nn.Module):
         # new_xyz: sampled points position data, [B, npoint, C]
         # new_points: sampled points data, [B, npoint, nsample, C+D]
         new_points = new_points.permute(0, 3, 2, 1) # [B, C+D, nsample,npoint]
-        for i, conv in enumerate(self.mlp_convs):
-            bn = self.mlp_bns[i]
-            new_points =  F.relu(bn(conv(new_points)))
 
-        new_points = torch.max(new_points, 2)[0]
+        # --- NEW: explicit 1×1 conv before MLP ---
+        x = F.relu(self.bn1x1(self.conv1x1(new_points)))
+        x0 = x  # for residual
+
+        # --- MLP stack ---
+        for conv, bn in zip(self.mlp_convs, self.mlp_bns):
+            x = F.relu(bn(conv(x)))
+
+        # --- intra-SA residual (if you defined self.res_proj in __init__) ---
+        if hasattr(self, "res_proj") and self.res_proj is not None:
+            x = F.relu(self.res_proj(x0) + x)
+
+        new_points = torch.max(x, 2)[0]
         new_xyz = new_xyz.permute(0, 2, 1)
         return new_xyz, new_points
 
 
 class PointNetSetAbstractionMsg(nn.Module):
-    def __init__(self, npoint, radius_list, nsample_list, in_channel, mlp_list, deepen=1, widen=1.5, residual=True):
+    def __init__(self, npoint, radius_list, nsample_list, in_channel, mlp_list):
         super(PointNetSetAbstractionMsg, self).__init__()
         self.npoint = npoint
         self.radius_list = radius_list
         self.nsample_list = nsample_list
-        # Options for deepening, widening and residual connections
-        self.deepen = deepen
-        self.widen = widen
-        self.residual = residual
-
-        # conv1x1_blocks: 1x1 conv before branch MLPs for each scale
-        self.conv1x1_blocks = nn.ModuleList()
-        # conv_blocks/bn_blocks hold the remaining MLP conv layers (starting from processed mlp_list[i][1:])
         self.conv_blocks = nn.ModuleList()
         self.bn_blocks = nn.ModuleList()
-        # residual projection if needed per branch
-        self.residual_projs = nn.ModuleList() if residual else None
-
         for i in range(len(mlp_list)):
-            # process mlp_list for widening and deepening
-            orig_branch = mlp_list[i]
-            # widen channels
-            proc_branch = [int(round(c * widen)) for c in orig_branch]
-            # deepen by appending copies of last channel
-            if deepen > 0:
-                proc_branch = proc_branch + [proc_branch[-1]] * deepen
-
-            # first_out is the output channel of 1x1 conv
-            first_out = proc_branch[0]
-            conv1x1 = nn.Conv2d(in_channel + 3, first_out, 1)
-            bn1x1 = nn.BatchNorm2d(first_out)
-            self.conv1x1_blocks.append(nn.Sequential(conv1x1, bn1x1))
-
             convs = nn.ModuleList()
             bns = nn.ModuleList()
-            last_channel = first_out
-            # remaining mlp layers (if any)
-            for out_channel in proc_branch[1:]:
+            last_channel = in_channel + 3
+            for out_channel in mlp_list[i]:
                 convs.append(nn.Conv2d(last_channel, out_channel, 1))
                 bns.append(nn.BatchNorm2d(out_channel))
                 last_channel = out_channel
             self.conv_blocks.append(convs)
             self.bn_blocks.append(bns)
-
-            # setup residual projection if requested
-            if residual:
-                final_ch = last_channel
-                if first_out != final_ch:
-                    proj = nn.Sequential(nn.Conv2d(first_out, final_ch, 1), nn.BatchNorm2d(final_ch))
-                else:
-                    proj = nn.Identity()
-                self.residual_projs.append(proj)
 
     def forward(self, xyz, points):
         """
@@ -285,25 +308,11 @@ class PointNetSetAbstractionMsg(nn.Module):
                 grouped_points = grouped_xyz
 
             grouped_points = grouped_points.permute(0, 3, 2, 1)  # [B, D, K, S]
-
-            # apply 1x1 conv (BN + ReLU) to enrich local features before branch MLPs
-            conv1x1 = self.conv1x1_blocks[i]
-            x = F.relu(conv1x1(grouped_points))
-            x0 = x
-
-            # apply remaining conv layers (if any)
             for j in range(len(self.conv_blocks[i])):
                 conv = self.conv_blocks[i][j]
                 bn = self.bn_blocks[i][j]
-                x = F.relu(bn(conv(x)))
-
-            # residual connection: add projection of x0 if enabled
-            if self.residual:
-                proj = self.residual_projs[i]
-                res = proj(x0) if not isinstance(proj, nn.Identity) else x0
-                x = F.relu(x + res)
-
-            new_points = torch.max(x, 2)[0]  # [B, D', S]
+                grouped_points =  F.relu(bn(conv(grouped_points)))
+            new_points = torch.max(grouped_points, 2)[0]  # [B, D', S]
             new_points_list.append(new_points)
 
         new_xyz = new_xyz.permute(0, 2, 1)

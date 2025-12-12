@@ -18,6 +18,7 @@ import argparse
 from pathlib import Path
 from tqdm import tqdm
 from data_utils.ModelNetDataLoader import ModelNetDataLoader
+import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = BASE_DIR
@@ -40,6 +41,10 @@ def parse_args():
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals')
     parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
+    parser.add_argument('--deepen', type=int, default=0, help='Number of extra layers in SA MLP')
+    parser.add_argument('--widen', type=float, default=1.0, help='Widen factor for SA MLP channels')
+    parser.add_argument('--residual', action='store_true', help='Use residual connections inside SA')
+
     return parser.parse_args()
 
 
@@ -49,16 +54,14 @@ def inplace_relu(m):
         m.inplace=True
 
 
-def test(model, loader, num_class=40):
+def test(model, loader, num_class=40, device=torch.device('cpu')):
     mean_correct = []
     class_acc = np.zeros((num_class, 3))
     classifier = model.eval()
 
     for j, (points, target) in tqdm(enumerate(loader), total=len(loader)):
 
-        if not args.use_cpu:
-            points, target = points.cuda(), target.cuda()
-
+        points, target = points.to(device), target.to(device)
         points = points.transpose(2, 1)
         pred, _ = classifier(points)
         pred_choice = pred.data.max(1)[1]
@@ -76,6 +79,7 @@ def test(model, loader, num_class=40):
     instance_acc = np.mean(mean_correct)
 
     return instance_acc, class_acc
+
 
 
 def main(args):
@@ -105,6 +109,16 @@ def main(args):
     '''LOG'''
     args = parse_args()
     logger = logging.getLogger("Model")
+    if args.use_cpu:
+        device = torch.device("cpu")
+    else:
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+        elif torch.cuda.is_available():
+            device = torch.device("cuda")
+        else:
+            device = torch.device("cpu")
+    log_string(f'Using device: {device}')
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler = logging.FileHandler('%s/%s.txt' % (log_dir, args.model))
@@ -130,13 +144,19 @@ def main(args):
     shutil.copy('models/pointnet2_utils.py', str(exp_dir))
     shutil.copy('./train_classification.py', str(exp_dir))
 
-    classifier = model.get_model(num_class, normal_channel=args.use_normals)
+    classifier = model.get_model(
+    num_class=num_class,
+    normal_channel=args.use_normals,
+    deepen=args.deepen,
+    widen=args.widen,
+    residual=args.residual)
+    
     criterion = model.get_loss()
     classifier.apply(inplace_relu)
 
-    if not args.use_cpu:
-        classifier = classifier.cuda()
-        criterion = criterion.cuda()
+    # Move model & loss to selected device
+    classifier = classifier.to(device)
+    criterion = criterion.to(device)
 
     try:
         checkpoint = torch.load(str(exp_dir) + '/checkpoints/best_model.pth')
@@ -166,7 +186,10 @@ def main(args):
 
     '''TRANING'''
     logger.info('Start training...')
+    total_start_time = time.time() # add total timer
     for epoch in range(start_epoch, args.epoch):
+        epoch_start_time = time.time() # add per epoch timer
+
         log_string('Epoch %d (%d/%s):' % (global_epoch + 1, epoch + 1, args.epoch))
         mean_correct = []
         classifier = classifier.train()
@@ -182,8 +205,7 @@ def main(args):
             points = torch.Tensor(points)
             points = points.transpose(2, 1)
 
-            if not args.use_cpu:
-                points, target = points.cuda(), target.cuda()
+            points, target = points.to(device), target.to(device)
 
             pred, trans_feat = classifier(points)
             loss = criterion(pred, target.long(), trans_feat)
@@ -199,7 +221,8 @@ def main(args):
         log_string('Train Instance Accuracy: %f' % train_instance_acc)
 
         with torch.no_grad():
-            instance_acc, class_acc = test(classifier.eval(), testDataLoader, num_class=num_class)
+            instance_acc, class_acc = test(classifier.eval(), testDataLoader,
+                                           num_class=num_class, device=device)
 
             if (instance_acc >= best_instance_acc):
                 best_instance_acc = instance_acc
@@ -209,6 +232,11 @@ def main(args):
                 best_class_acc = class_acc
             log_string('Test Instance Accuracy: %f, Class Accuracy: %f' % (instance_acc, class_acc))
             log_string('Best Instance Accuracy: %f, Class Accuracy: %f' % (best_instance_acc, best_class_acc))
+            # Print per-epoch elapsed time
+            epoch_end_time = time.time()
+            epoch_duration = epoch_end_time - epoch_start_time
+            log_string(f"Epoch Time: {epoch_duration:.2f} seconds")
+
 
             if (instance_acc >= best_instance_acc):
                 logger.info('Save model...')
@@ -223,6 +251,9 @@ def main(args):
                 }
                 torch.save(state, savepath)
             global_epoch += 1
+    total_end_time = time.time()
+    total_duration = total_end_time - total_start_time
+    log_string(f"Total Training Time: {total_duration/60:.2f} minutes ({total_duration:.2f} seconds)")
 
     logger.info('End of training...')
 
